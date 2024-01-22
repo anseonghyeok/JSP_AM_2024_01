@@ -13,16 +13,27 @@ List<Map<String, Object>> articleRows = (List<Map<String, Object>>) request.getA
 <title>게시물 목록</title>
 </head>
 <body>
+
+	<a href="https://www.naver.com" target="_blank">네이버</a>
+	<a href="http://localhost:8081/JSP_AM_2024_01/article/list"
+		target="_blank">버튼</a>
+	<a href="/JSP_AM_2024_01/article/list" target="_blank">버튼</a>
+	<a href="detail" target="_blank">디테일</a>
+
 	<h2>게시물 목록</h2>
-	
+
 	<ul>
-	<%
-	for (int i = 0; i <= articleRows.size(); i++) {
-	%>
-		<li><%=articleRows.get(i).get("id")%>번, <%=articleRows.get(i).get("regDate")%>,<%=articleRows.get(i).get("title")%>,<%=articleRows.get(i).get("body")%></li>
 		<%
-	}
-	%>
+		for (Map<String, Object> articleRow : articleRows) {
+		%>
+		<li><a href="detail?id=<%=articleRow.get("id")%>"><%=articleRow.get("id")%>번,
+				<%=articleRow.get("regDate")%>,<%=articleRow.get("title")%>,<%=articleRow.get("body")%></a></li>
+		<%
+		}
+		%>
 	</ul>
+
+
+
 </body>
 </html>
