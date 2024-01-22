@@ -27,7 +27,7 @@ public class printDanServlet extends HttpServlet {
 			inputedLimit = "1";
 		}
 		if (inputedColor == null) {
-			inputedLimit = "black";
+			inputedColor = "black";
 		}
 
 		int dan = Integer.parseInt(inputedDan);
@@ -38,6 +38,7 @@ public class printDanServlet extends HttpServlet {
 		for (int i = 1; i <= limit; i++) {
 			response.getWriter().append(
 					String.format("<div style=\"color:%s\";>%d * %d = %d</div>", inputedColor, dan, i, dan * i));
+
 		}
 	}
 
