@@ -29,7 +29,7 @@ Map<String, Object> articleRow = (Map<String, Object>) request.getAttribute("art
 			제목 : <input type="text" name="title"
 				value="<%=articleRow.get("title")%>"/ >
 		</div>
-		<div>
+		<div>3
 			내용 :
 			<textarea type="text" name="body"><%=articleRow.get("body")%></textarea>
 		</div>
