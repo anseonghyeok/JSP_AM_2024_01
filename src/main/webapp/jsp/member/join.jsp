@@ -38,7 +38,7 @@
 
 			if (loginId.length == 0) {
 				alert('아이디를 입력해주세요');
-				form.loginId.focus();
+	
 				return;
 			}
 
