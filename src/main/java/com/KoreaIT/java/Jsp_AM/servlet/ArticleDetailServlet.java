@@ -25,15 +25,6 @@ public class ArticleDetailServlet extends HttpServlet {
 			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
 		// DB연결
-
-		HttpSession session = request.getSession();
-
-		if (session.getAttribute("loginedMemberId") == null) {
-			response.getWriter().append(
-					String.format("<script>alert('로그인 후 이용해주세요'); location.replace('../member/login');</script>"));
-			return;
-		}
-
 		try {
 			Class.forName(Config.getDbDriverClassName());
 		} catch (ClassNotFoundException e) {
@@ -45,27 +36,34 @@ public class ArticleDetailServlet extends HttpServlet {
 
 		try {
 			conn = DriverManager.getConnection(Config.getDbUrl(), Config.getDbUser(), Config.getDbPw());
-			response.getWriter().append("연결 성공!");
+
+			HttpSession session = request.getSession();
+
+			boolean isLogined = false;
+			int loginedMemberId = -1;
+			Map<String, Object> loginedMember = null;
+
+			if (session.getAttribute("loginedMemberId") != null) {
+				isLogined = true;
+				loginedMemberId = (int) session.getAttribute("loginedMemberId");
+				loginedMember = (Map<String, Object>) session.getAttribute("loginedMember");
+			}
+
+			request.setAttribute("isLogined", isLogined);
+			request.setAttribute("loginedMemberId", loginedMemberId);
+			request.setAttribute("loginedMember", loginedMember);
 
 			int id = Integer.parseInt(request.getParameter("id"));
 
-			SecSql sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("WHERE id = ?;", id);
+			SecSql sql = SecSql.from("SELECT A.*, M.name AS writer");
+			sql.append("FROM article AS A");
+			sql.append("INNER JOIN `member` AS M");
+			sql.append("ON A.memberId = M.id");
+			sql.append("WHERE A.id = ?;", id);
 
 			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
 
 			request.setAttribute("articleRow", articleRow);
-
-			SecSql sq2 = SecSql.from("SELECT *");
-			sq2.append("FROM article;");
-
-			if (session.getAttribute("loginedMemberId") != articleRow.get("memberId")) {
-				response.getWriter().append(
-						String.format("<script>alert('다른 사용자가  쓴 글입니다'); location.replace('../home/main');</script>"));
-				return;
-			}
-
 			request.getRequestDispatcher("/jsp/article/detail.jsp").forward(request, response);
 
 		} catch (SQLException e) {

@@ -23,10 +23,24 @@ public class ArticleModifyServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		response.setContentType("text/html;charset=UTF-8");
-		// DB연결
 
 		HttpSession session = request.getSession();
+
+		boolean isLogined = false;
+		int loginedMemberId = -1;
+		Map<String, Object> loginedMember = null;
+
+		if (session.getAttribute("loginedMemberId") != null) {
+			isLogined = true;
+			loginedMemberId = (int) session.getAttribute("loginedMemberId");
+			loginedMember = (Map<String, Object>) session.getAttribute("loginedMember");
+		}
+
+		request.setAttribute("isLogined", isLogined);
+		request.setAttribute("loginedMemberId", loginedMemberId);
+		request.setAttribute("loginedMember", loginedMember);
 
 		if (session.getAttribute("loginedMemberId") == null) {
 			response.getWriter().append(
@@ -34,6 +48,7 @@ public class ArticleModifyServlet extends HttpServlet {
 			return;
 		}
 
+		// DB연결
 		try {
 			Class.forName(Config.getDbDriverClassName());
 		} catch (ClassNotFoundException e) {
@@ -54,13 +69,13 @@ public class ArticleModifyServlet extends HttpServlet {
 
 			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
 
-			request.setAttribute("articleRow", articleRow);
-
-			if (session.getAttribute("loginedMemberId") != articleRow.get("memberId")) {
+			if (loginedMemberId != (int) articleRow.get("memberId")) {
 				response.getWriter().append(
-						String.format("<script>alert('다른 사용자가  쓴 글입니다'); location.replace('../home/main');</script>"));
+						String.format("<script>alert('해당 글에 대한 권한이 없습니다.'); location.replace('list');</script>"));
 				return;
 			}
+
+			request.setAttribute("articleRow", articleRow);
 			request.getRequestDispatcher("/jsp/article/modify.jsp").forward(request, response);
 
 		} catch (SQLException e) {
