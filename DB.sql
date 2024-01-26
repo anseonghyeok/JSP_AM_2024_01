@@ -64,7 +64,7 @@ UPDATE article
 SET memberId = 2
 WHERE id = 3;
 
-SELECT *
+SELECT *	
 FROM article
 ORDER BY id DESC;
 

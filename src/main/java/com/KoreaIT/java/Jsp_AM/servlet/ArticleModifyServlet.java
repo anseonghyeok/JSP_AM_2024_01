@@ -16,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/article/modify")
 public class ArticleModifyServlet extends HttpServlet {
@@ -24,6 +25,15 @@ public class ArticleModifyServlet extends HttpServlet {
 			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
 		// DB연결
+
+		HttpSession session = request.getSession();
+
+		if (session.getAttribute("loginedMemberId") == null) {
+			response.getWriter().append(
+					String.format("<script>alert('로그인 후 이용해주세요'); location.replace('../member/login');</script>"));
+			return;
+		}
+
 		try {
 			Class.forName(Config.getDbDriverClassName());
 		} catch (ClassNotFoundException e) {
@@ -45,6 +55,12 @@ public class ArticleModifyServlet extends HttpServlet {
 			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
 
 			request.setAttribute("articleRow", articleRow);
+
+			if (session.getAttribute("loginedMemberId") != articleRow.get("memberId")) {
+				response.getWriter().append(
+						String.format("<script>alert('다른 사용자가  쓴 글입니다'); location.replace('../home/main');</script>"));
+				return;
+			}
 			request.getRequestDispatcher("/jsp/article/modify.jsp").forward(request, response);
 
 		} catch (SQLException e) {
